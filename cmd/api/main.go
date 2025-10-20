@@ -9,6 +9,8 @@ import (
 	"github.com/MislavaGuzman/AssetsReplacementManagementAPI/internal/env"
 	"github.com/joho/godotenv"
 	"go.uber.org/zap"
+
+	"github.com/MislavaGuzman/AssetsReplacementManagementAPI/internal/ratelimiter"
 )
 
 const version = "0.1.0"
@@ -51,6 +53,8 @@ func main() {
 	logger := zap.Must(zap.NewProduction()).Sugar()
 	defer logger.Sync()
 
+	rateLimiter := ratelimiter.New(100, 10)
+
 	dsn := "oracle://" + cfg.db.user + ":" + cfg.db.password + "@" + cfg.db.host + ":" + strconv.Itoa(cfg.db.port) + "/" + cfg.db.serviceName
 
 	conn, err := db.New(
@@ -64,8 +68,14 @@ func main() {
 		logger.Fatalf("Error connecting to the database: %v", err)
 	}
 	defer conn.Close()
-
 	logger.Infow("Connected to the database successfully")
+
+	app := &application{
+		config:      cfg,
+		logger:      logger,
+		db:          conn,
+		rateLimiter: rateLimiter,
+	}
 
 	expvar.NewString("version").Set(version)
 	expvar.Publish("database", expvar.Func(func() any {
@@ -74,5 +84,7 @@ func main() {
 
 	logger.Infof("Starting server on %s in %s mode", cfg.addr, cfg.env)
 
-	select {}
+	mux := app.mount()
+
+	logger.Fatal(app.run(mux))
 }
