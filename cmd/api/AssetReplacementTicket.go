@@ -1,11 +1,11 @@
 package main
 
 import (
-	"context"
 	"errors"
 	"net/http"
 	"strconv"
 
+	"github.com/MislavaGuzman/AssetsReplacementManagementAPI/cmd/api/dto"
 	"github.com/MislavaGuzman/AssetsReplacementManagementAPI/internal/store"
 	"github.com/go-chi/chi/v5"
 )
@@ -63,7 +63,7 @@ func (app *application) createAssetReplacementTicketHandler(w http.ResponseWrite
 	}
 	app.logger.Infof("Ticket creado: %+v", t)
 
-	_ = app.jsonResponse(w, http.StatusCreated, t)
+	_ = app.jsonResponse(w, http.StatusCreated, dto.FromEntity(t))
 }
 
 func (app *application) getAssetReplacementTicketHandler(w http.ResponseWriter, r *http.Request) {
@@ -86,7 +86,7 @@ func (app *application) getAssetReplacementTicketHandler(w http.ResponseWriter, 
 		return
 	}
 
-	_ = app.jsonResponse(w, http.StatusOK, ticket)
+	_ = app.jsonResponse(w, http.StatusOK, dto.FromEntity(ticket))
 }
 
 func (app *application) updateAssetReplacementTicketHandler(w http.ResponseWriter, r *http.Request) {
@@ -129,7 +129,7 @@ func (app *application) updateAssetReplacementTicketHandler(w http.ResponseWrite
 		return
 	}
 
-	_ = app.jsonResponse(w, http.StatusOK, t)
+	_ = app.jsonResponse(w, http.StatusOK, dto.FromEntity(t))
 }
 
 func (app *application) deleteAssetReplacementTicketHandler(w http.ResponseWriter, r *http.Request) {
@@ -161,12 +161,12 @@ func (app *application) getAllAssetReplacementTicketsHandler(w http.ResponseWrit
 		stage = 1
 	}
 
-	ctx := context.Background()
+	ctx := r.Context()
 	tickets, err := app.store.Tickets.GetAll(ctx, stage)
 	if err != nil {
 		app.internalServerError(w, r, err)
 		return
 	}
 
-	_ = app.jsonResponse(w, http.StatusOK, tickets)
+	_ = app.jsonResponse(w, http.StatusOK, dto.FromEntities(tickets))
 }

@@ -30,9 +30,16 @@ type TicketStore struct {
 
 func (s *TicketStore) GetAll(ctx context.Context, stage int) ([]AssetReplacementTicket, error) {
 	query := `
-		SELECT ID, TICKET_ID, CATEGORY_ID, NO_SERIAL, ORDER_NUMBER, ORDER_STAGE, CAPEX,
-		       INVOICE_NUMBER, LAST_UPDATED, ETL_STAGE, ETL_STATUS, IS_DELETED,
-		       CREATED_AT, UPDATED_AT
+		SELECT 			
+		    ID, 
+			TICKET_ID, 
+			CATEGORY_ID, 
+			NO_SERIAL, 
+			ORDER_NUMBER, 
+			ORDER_STAGE, 
+			CAPEX, 
+			INVOICE_NUMBER, 
+			ETL_STAGE
 		FROM ASSETS_REPLACEMENT_TICKETS
 		WHERE ETL_STAGE = :1 AND IS_DELETED = 'N'
 		ORDER BY CREATED_AT DESC
@@ -59,12 +66,7 @@ func (s *TicketStore) GetAll(ctx context.Context, stage int) ([]AssetReplacement
 			&t.OrderStage,
 			&t.Capex,
 			&t.InvoiceNumber,
-			&t.LastUpdated,
 			&t.ETLStage,
-			&t.ETLStatus,
-			&t.IsDeleted,
-			&t.CreatedAt,
-			&t.UpdatedAt,
 		)
 		if err != nil {
 			return nil, err
@@ -98,11 +100,6 @@ func (s *TicketStore) GetByID(ctx context.Context, id int64) (*AssetReplacementT
 		&t.Capex,
 		&t.InvoiceNumber,
 		&t.LastUpdated,
-		&t.ETLStage,
-		&t.ETLStatus,
-		&t.IsDeleted,
-		&t.CreatedAt,
-		&t.UpdatedAt,
 	)
 	if err != nil {
 		switch {
