@@ -19,6 +19,14 @@ func writeJSON(w http.ResponseWriter, status int, data any) error {
 	return json.NewEncoder(w).Encode(data)
 }
 
+func readJSON(w http.ResponseWriter, r *http.Request, data any) error {
+	maxBytes := 1_048_576 // 1 MB
+	r.Body = http.MaxBytesReader(w, r.Body, int64(maxBytes))
+	decoder := json.NewDecoder(r.Body)
+	decoder.DisallowUnknownFields()
+	return decoder.Decode(data)
+}
+
 func writeJSONError(w http.ResponseWriter, status int, message string) error {
 	type envelope struct {
 		Error string `json:"error"`
@@ -35,8 +43,7 @@ func (app *application) jsonResponse(w http.ResponseWriter, status int, data any
 
 func (app *application) internalServerError(w http.ResponseWriter, r *http.Request, err error) {
 	app.logger.Error(err)
-	_ = writeJSONError(w, http.StatusInternalServerError, "the server encoutered a problem and could not process your request")
-
+	_ = writeJSONError(w, http.StatusInternalServerError, "internal server error")
 }
 
 func (app *application) badRequestResponse(w http.ResponseWriter, r *http.Request, err error) {
@@ -46,5 +53,4 @@ func (app *application) badRequestResponse(w http.ResponseWriter, r *http.Reques
 
 func (app *application) notFoundResponse(w http.ResponseWriter, r *http.Request, err error) {
 	_ = writeJSONError(w, http.StatusNotFound, "resource not found")
-
 }

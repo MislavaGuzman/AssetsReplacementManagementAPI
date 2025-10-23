@@ -31,7 +31,7 @@ type TicketStore struct {
 func (s *TicketStore) GetAll(ctx context.Context, stage int) ([]AssetReplacementTicket, error) {
 	query := `
 		SELECT ID, TICKET_ID, CATEGORY_ID, NO_SERIAL, ORDER_NUMBER, ORDER_STAGE, CAPEX,
-		       IVOICE_NUMBER, LAST_UPDATED, ETL_STAGE, ETL_STATUS, IS_DELETED,
+		       INVOICE_NUMBER, LAST_UPDATED, ETL_STAGE, ETL_STATUS, IS_DELETED,
 		       CREATED_AT, UPDATED_AT
 		FROM ASSETS_REPLACEMENT_TICKETS
 		WHERE ETL_STAGE = :1 AND IS_DELETED = 'N'
@@ -78,7 +78,7 @@ func (s *TicketStore) GetAll(ctx context.Context, stage int) ([]AssetReplacement
 func (s *TicketStore) GetByID(ctx context.Context, id int64) (*AssetReplacementTicket, error) {
 	query := `
 		SELECT ID, TICKET_ID, CATEGORY_ID, NO_SERIAL, ORDER_NUMBER, ORDER_STAGE, CAPEX,
-		       IVOICE_NUMBER, LAST_UPDATED, ETL_STAGE, ETL_STATUS, IS_DELETED,
+		       INVOICE_NUMBER, LAST_UPDATED, ETL_STAGE, ETL_STATUS, IS_DELETED,
 		       CREATED_AT, UPDATED_AT
 		FROM ASSETS_REPLACEMENT_TICKETS
 		WHERE ID = :1 AND IS_DELETED = 'N'
@@ -119,7 +119,7 @@ func (s *TicketStore) GetByID(ctx context.Context, id int64) (*AssetReplacementT
 func (s *TicketStore) Create(ctx context.Context, t *AssetReplacementTicket) error {
 	query := `
 		INSERT INTO ASSETS_REPLACEMENT_TICKETS
-			(TICKET_ID, CATEGORY_ID, NO_SERIAL, ORDER_NUMBER, ORDER_STAGE, CAPEX, IVOICE_NUMBER)
+			(TICKET_ID, CATEGORY_ID, NO_SERIAL, ORDER_NUMBER, ORDER_STAGE, CAPEX, INVOICE_NUMBER)
 		VALUES (:1, :2, :3, :4, :5, :6, :7)
 		RETURNING ID INTO :8
 	`

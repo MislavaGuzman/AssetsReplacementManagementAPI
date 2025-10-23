@@ -11,6 +11,7 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/MislavaGuzman/AssetsReplacementManagementAPI/internal/ratelimiter"
+	"github.com/MislavaGuzman/AssetsReplacementManagementAPI/internal/store"
 )
 
 const version = "0.1.0"
@@ -33,6 +34,7 @@ type dbConfig struct {
 }
 
 func main() {
+
 	_ = godotenv.Load()
 
 	cfg := appConfig{
@@ -70,11 +72,14 @@ func main() {
 	defer conn.Close()
 	logger.Infow("Connected to the database successfully")
 
+	storage := store.NewStorage(conn)
+
 	app := &application{
 		config:      cfg,
 		logger:      logger,
 		db:          conn,
 		rateLimiter: rateLimiter,
+		store:       storage,
 	}
 
 	expvar.NewString("version").Set(version)

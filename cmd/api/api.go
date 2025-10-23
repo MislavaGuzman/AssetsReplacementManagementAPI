@@ -53,6 +53,15 @@ func (app *application) mount() http.Handler {
 		r.Get("/health", app.healthCheckHandler)
 		r.Handle("/debug/vars", expvar.Handler())
 	})
+	r.Route("/v1/asset-replacement-tickets", func(r chi.Router) {
+		r.Get("/", app.getAllAssetReplacementTicketsHandler)
+		r.Post("/", app.createAssetReplacementTicketHandler)
+		r.Route("/{ticketID}", func(r chi.Router) {
+			r.Get("/", app.getAssetReplacementTicketHandler)
+			r.Patch("/", app.updateAssetReplacementTicketHandler)
+			r.Delete("/", app.deleteAssetReplacementTicketHandler)
+		})
+	})
 
 	return r
 }
