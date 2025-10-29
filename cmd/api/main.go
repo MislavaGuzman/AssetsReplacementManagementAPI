@@ -7,6 +7,7 @@ import (
 
 	"github.com/MislavaGuzman/AssetsReplacementManagementAPI/internal/db"
 	"github.com/MislavaGuzman/AssetsReplacementManagementAPI/internal/env"
+	"github.com/MislavaGuzman/AssetsReplacementManagementAPI/internal/services"
 	"github.com/joho/godotenv"
 	"go.uber.org/zap"
 
@@ -73,13 +74,15 @@ func main() {
 	logger.Infow("Connected to the database successfully")
 
 	storage := store.NewStorage(conn)
+	ticketService := services.NewTicketService(storage.Tickets, logger)
 
 	app := &application{
-		config:      cfg,
-		logger:      logger,
-		db:          conn,
-		rateLimiter: rateLimiter,
-		store:       storage,
+		config:        cfg,
+		logger:        logger,
+		db:            conn,
+		rateLimiter:   rateLimiter,
+		store:         storage,
+		ticketService: ticketService,
 	}
 
 	expvar.NewString("version").Set(version)

@@ -13,17 +13,18 @@ type TicketResponse struct {
 	OrderStage    *string `json:"order_stage,omitempty"`
 	Capex         *string `json:"capex,omitempty"`
 	InvoiceNumber *string `json:"invoice_number,omitempty"`
-	ETLStage      *int64  `json:"etl_stage,omitempty"`
-	ETLStatus     *string `json:"etl_status,omitempty"`
-	IsDeleted     *string `json:"is_deleted,omitempty"`
-	CreatedAt     string  `json:"created_at"`
-	UpdatedAt     string  `json:"updated_at"`
+	Supplier      *string `json:"supplier,omitempty"`
 }
 
 func FromEntity(t *store.AssetReplacementTicket) TicketResponse {
 	var (
-		categoryID, etlStage                                    *int64
-		noSerial, orderNumber, orderStage, capex, invoiceNumber *string
+		categoryID    *int64
+		noSerial      *string
+		orderNumber   *string
+		orderStage    *string
+		capex         *string
+		invoiceNumber *string
+		supplier      *string
 	)
 
 	if t.CategoryID.Valid {
@@ -35,17 +36,14 @@ func FromEntity(t *store.AssetReplacementTicket) TicketResponse {
 	if t.OrderNumber.Valid {
 		orderNumber = &t.OrderNumber.String
 	}
-	if t.OrderStage.Valid {
-		orderStage = &t.OrderStage.String
-	}
 	if t.Capex.Valid {
 		capex = &t.Capex.String
 	}
 	if t.InvoiceNumber.Valid {
 		invoiceNumber = &t.InvoiceNumber.String
 	}
-	if t.ETLStage.Valid {
-		etlStage = &t.ETLStage.Int64
+	if t.Supplier.Valid {
+		supplier = &t.Supplier.String
 	}
 
 	return TicketResponse{
@@ -57,7 +55,7 @@ func FromEntity(t *store.AssetReplacementTicket) TicketResponse {
 		OrderStage:    orderStage,
 		Capex:         capex,
 		InvoiceNumber: invoiceNumber,
-		ETLStage:      etlStage,
+		Supplier:      supplier,
 	}
 }
 

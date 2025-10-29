@@ -17,15 +17,17 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/MislavaGuzman/AssetsReplacementManagementAPI/internal/ratelimiter"
+	"github.com/MislavaGuzman/AssetsReplacementManagementAPI/internal/services"
 	"github.com/MislavaGuzman/AssetsReplacementManagementAPI/internal/store"
 )
 
 type application struct {
-	config      appConfig
-	store       store.Storage
-	logger      *zap.SugaredLogger
-	db          *sql.DB
-	rateLimiter ratelimiter.Limiter
+	config        appConfig
+	store         store.Storage
+	logger        *zap.SugaredLogger
+	db            *sql.DB
+	rateLimiter   ratelimiter.Limiter
+	ticketService *services.TicketService
 }
 
 // ROUTER
@@ -56,11 +58,12 @@ func (app *application) mount() http.Handler {
 	r.Route("/v1/asset-replacement-tickets", func(r chi.Router) {
 		r.Get("/", app.getAllAssetReplacementTicketsHandler)
 		r.Post("/", app.createAssetReplacementTicketHandler)
-		r.Route("/{ticketID}", func(r chi.Router) {
-			r.Get("/", app.getAssetReplacementTicketHandler)
-			r.Patch("/", app.updateAssetReplacementTicketHandler)
-			r.Delete("/", app.deleteAssetReplacementTicketHandler)
-		})
+		r.Get("/by-ticket", app.getAssetReplacementTicketHandler)
+		r.Patch("/by-ticket", app.updateAssetReplacementTicketHandler)
+		r.Delete("/", app.deleteAssetReplacementTicketHandler)
+		r.Get("/basic", app.getBasicTicketsHandler)
+		r.Post("/upsert-batch", app.upsertBatchHandler)
+		r.Post("/upsert-csv", app.upsertBatchCSVHandler)
 	})
 
 	return r

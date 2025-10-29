@@ -5,6 +5,8 @@ import (
 	"database/sql"
 	"errors"
 	"time"
+
+	"github.com/MislavaGuzman/AssetsReplacementManagementAPI/internal/dto"
 )
 
 var (
@@ -13,14 +15,20 @@ var (
 	QueryTimeoutDuration = time.Second * 5
 )
 
+type TicketRepository interface {
+	GetAll(ctx context.Context, stage, offset, limit int) ([]AssetReplacementTicket, int, error)
+	GetByID(ctx context.Context, id int64) (*AssetReplacementTicket, error)
+	Create(ctx context.Context, ticket *AssetReplacementTicket) error
+	Update(ctx context.Context, ticket *AssetReplacementTicket) error
+	Delete(ctx context.Context, id int64) error
+
+	Upsert(ctx context.Context, d dto.TicketUpsertDTO) error
+	ExistsActiveOrderWithSerial(ctx context.Context, serial string, excludeTicketID int64) (bool, error)
+	GetBasicTickets(ctx context.Context) ([]AssetReplacementTicket, error)
+}
+
 type Storage struct {
-	Tickets interface {
-		GetAll(ctx context.Context, stage int) ([]AssetReplacementTicket, error)
-		GetByID(ctx context.Context, id int64) (*AssetReplacementTicket, error)
-		Create(ctx context.Context, ticket *AssetReplacementTicket) error
-		Update(ctx context.Context, ticket *AssetReplacementTicket) error
-		Delete(ctx context.Context, id int64) error
-	}
+	Tickets TicketRepository
 }
 
 func NewStorage(db *sql.DB) Storage {
